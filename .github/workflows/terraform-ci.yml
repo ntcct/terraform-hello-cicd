@@ -48,6 +48,8 @@ jobs:
           terraform init \
             -backend-config=backend.hcl \
             -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
+          echo "I have been called by ${{github.event_name}}"
+
 
       - name: Terraform validate
         run: terraform validate
