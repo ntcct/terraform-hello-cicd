@@ -1,5 +1,5 @@
 # prod environment state location. Separate key => fully isolated state file.
-bucket       = "REPLACE_ME-tfstate"
+bucket       = "hello-cicd-tfstate-584894272353"
 key          = "prod/terraform.tfstate"
 region       = "us-east-1"
 encrypt      = true
