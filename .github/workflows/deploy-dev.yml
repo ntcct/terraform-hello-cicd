@@ -46,6 +46,7 @@ jobs:
             -backend-config=backend.hcl \
             -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
           echo "I have been called by ${{github.event_name}}"
+          echo "Meta data ${{github.sha}} ${{github.workflow}} ${{github.actor}}"
 
       - name: Terraform apply
         run: |
