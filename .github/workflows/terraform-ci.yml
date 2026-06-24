@@ -1,0 +1,61 @@
+name: terraform-ci
+
+# PR validation: fmt, validate and plan for BOTH environments.
+# Runs on every pull request targeting main. No changes are applied.
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  id-token: write      # required for AWS OIDC
+  contents: read
+  pull-requests: write # to post the plan summary as a PR comment
+
+env:
+  AWS_REGION: us-east-1
+  TF_VERSION: "1.11.4"
+
+jobs:
+  validate:
+    name: validate-and-plan (${{ matrix.environment }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [dev, prod]
+    defaults:
+      run:
+        working-directory: environments/${{ matrix.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform fmt (check)
+        run: terraform fmt -check -recursive
+        working-directory: .
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform init
+        run: |
+          terraform init \
+            -backend-config=backend.hcl \
+            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
+
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Terraform plan
+        id: plan
+        run: terraform plan -no-color -input=false -out=tfplan
+
+      - name: Post plan summary
+        if: always()
+        run: terraform show -no-color tfplan >> "$GITHUB_STEP_SUMMARY" || true

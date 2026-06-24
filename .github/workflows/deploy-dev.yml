@@ -1,0 +1,55 @@
+name: deploy-dev
+
+# Continuous deployment to DEV.
+# Triggered when code is merged/pushed to main. Deploys infra + application
+# (application code change is picked up via the Lambda source hash).
+on:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  TF_VERSION: "1.11.4"
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: apply (dev)
+    runs-on: ubuntu-latest
+    environment: dev
+    defaults:
+      run:
+        working-directory: environments/dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform init
+        run: |
+          terraform init \
+            -backend-config=backend.hcl \
+            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
+
+      - name: Terraform apply
+        run: |
+          terraform apply -auto-approve -input=false \
+            -var="app_version=${GITHUB_SHA::7}"
+
+      - name: Output endpoint
+        run: terraform output -raw api_endpoint
