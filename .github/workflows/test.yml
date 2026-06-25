@@ -1,0 +1,34 @@
+name: Manual Deployment Workflow
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select the environment to deploy'
+        type: choice
+        required: true
+        default: 'staging'
+        options:
+          - staging
+          - production
+          - development
+      debug_mode:
+        description: 'Enable verbose debug logging'
+        type: boolean
+        required: false
+        default: false
+      version:
+        description: 'Application version'
+        type: string
+        required: true
+
+jobs:
+  deploy_app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run deployment
+        run: echo "Deploying version ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }}"
+        env:
+          DEBUG_FLAG: ${{ github.event.inputs.debug_mode }}
