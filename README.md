@@ -151,3 +151,4 @@ See [`docs/troubleshooting.md`](docs/troubleshooting.md).
 - Add `tflint`/`checkov`/`trivy` security scanning to the CI workflow.
 - Add a post-deploy smoke test step that curls the endpoint and asserts 200.
 - Add automated rollback on failed prod smoke test.
+
