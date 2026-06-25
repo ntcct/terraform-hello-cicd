@@ -44,9 +44,9 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Terraform init
-        run: terraform init
-          echo "I have been called by ${{github.event_name}}"
-
+        run: |
+          echo "I have been called by ${{ github.event_name }}"
+          terraform init
 
       - name: Terraform validate
         run: terraform validate
