@@ -7,8 +7,8 @@
 #   - GitHub OIDC identity provider + IAM role assumable by GitHub Actions
 #
 # After applying this, copy the outputs into:
-#   - environments/*/backend.hcl  (bucket name)
-#   - GitHub repo secrets/variables (AWS_ROLE_ARN, TF_STATE_BUCKET)
+#   - environments/*/backend.tf    (bucket field)
+#   - GitHub repo secret (AWS_ROLE_ARN)
 ###############################################################################
 
 terraform {
@@ -37,7 +37,8 @@ provider "aws" {
 data "aws_caller_identity" "current" {}
 
 locals {
-  state_bucket_name = "${var.state_bucket_prefix}-${data.aws_caller_identity.current.account_id}"
+  # Use the first 6 digits of the account ID as a short, stable suffix.
+  state_bucket_name = "${var.state_bucket_prefix}-${substr(data.aws_caller_identity.current.account_id, 0, 6)}"
 }
 
 # ---------------------------------------------------------------------------

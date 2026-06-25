@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "state_bucket_prefix" {
   description = "Prefix for the state bucket. Account ID is appended for global uniqueness."
   type        = string
-  default     = "hello-cicd-tfstate"
+  default     = "tf-hello-cicd-tfstate"
 }
 
 variable "github_repo" {

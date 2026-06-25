@@ -1,5 +1,5 @@
 output "state_bucket" {
-  description = "Name of the S3 state bucket. Put this in environments/*/backend.hcl and GitHub secret TF_STATE_BUCKET."
+  description = "Name of the S3 state bucket. Set this as the bucket in environments/*/backend.tf."
   value       = aws_s3_bucket.state.id
 }
 

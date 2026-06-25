@@ -53,7 +53,7 @@ rationale.
 | State | S3 backend with native lockfile (`use_lockfile`) | Durable, encrypted, versioned, lockable remote state with no extra services (Terraform >= 1.10) |
 | Env isolation | Separate directory + separate state **key** per environment | No shared workspace; blast radius contained |
 | CI auth | GitHub OIDC → IAM role | No long-lived AWS keys stored in GitHub |
-| Backend config | Partial config + `backend.hcl` | No account-specific values hardcoded in `.tf` |
+| Backend config | Bucket hardcoded in `backend.tf` | Simple: `terraform init` needs no extra flags |
 | App deploy | Lambda code hashed via `source_code_hash` | App changes redeploy through the same pipeline as infra |
 
 ## 4. Environment separation strategy
@@ -89,12 +89,12 @@ Record the two outputs: `state_bucket` and `github_actions_role_arn`.
 
 ### Step 2 — Wire up configuration
 
-1. Put the bucket name into both backend files:
-   - `environments/dev/backend.hcl`  → `bucket = "<state_bucket>"`
-   - `environments/prod/backend.hcl` → `bucket = "<state_bucket>"`
-2. In GitHub → repo **Settings → Secrets and variables → Actions**, add secrets:
-   - `AWS_ROLE_ARN`   = `<github_actions_role_arn>`
-   - `TF_STATE_BUCKET` = `<state_bucket>`
+1. The state bucket is hardcoded in both `backend.tf` files
+   (`environments/dev/backend.tf`, `environments/prod/backend.tf`). If your
+   bootstrap bucket name differs from the committed value, update the `bucket`
+   field in both.
+2. In GitHub → repo **Settings → Secrets and variables → Actions**, add secret:
+   - `AWS_ROLE_ARN` = `<github_actions_role_arn>`
 3. In GitHub → **Settings → Environments**, create:
    - `dev`  (no protection needed)
    - `prod` (enable **Required reviewers** → add yourself = manual approval gate)
@@ -109,7 +109,7 @@ Record the two outputs: `state_bucket` and `github_actions_role_arn`.
 
 ```bash
 cd environments/dev
-terraform init -backend-config=backend.hcl -backend-config="bucket=<state_bucket>"
+terraform init
 terraform plan
 terraform apply
 terraform output api_endpoint    # then: curl "$(terraform output -raw api_endpoint)"

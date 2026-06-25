@@ -43,10 +43,11 @@ it.
 
 ## State and locking in CI
 
-Each job runs `terraform init` with partial backend config:
+Each job runs `terraform init` with no extra flags — the S3 backend (bucket,
+key, region, lockfile) is fully specified in each environment's `backend.tf`:
 
 ```
-terraform init -backend-config=backend.hcl -backend-config="bucket=$TF_STATE_BUCKET"
+terraform init
 ```
 
 Native S3 state locking (`use_lockfile = true`, Terraform >= 1.10) plus the
@@ -55,5 +56,5 @@ state. No DynamoDB table is involved.
 
 ## Required GitHub configuration
 
-Secrets: `AWS_ROLE_ARN`, `TF_STATE_BUCKET`.
+Secrets: `AWS_ROLE_ARN`.
 Environments: `dev` (open), `prod` (required reviewers enabled).

@@ -52,10 +52,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Terraform init
-        run: |
-          terraform init \
-            -backend-config=backend.hcl \
-            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}"
+        run: terraform init
 
       - name: Terraform plan
         run: |

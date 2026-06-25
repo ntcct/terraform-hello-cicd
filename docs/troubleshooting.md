@@ -3,9 +3,9 @@
 ## Common issues
 
 ### `Error: Failed to get existing workspaces / NoSuchBucket`
-The state bucket does not exist or `backend.hcl` / `TF_STATE_BUCKET` is wrong.
-Re-check the `bootstrap` output `state_bucket` and ensure it matches both
-`environments/*/backend.hcl` and the `TF_STATE_BUCKET` GitHub secret.
+The state bucket does not exist or the `bucket` in `backend.tf` is wrong.
+Re-check the `bootstrap` output `state_bucket` and ensure it matches the
+`bucket` field in `environments/*/backend.tf`.
 
 ### `Error: error configuring S3 Backend: no valid credential sources`
 Running locally without AWS credentials, or in CI the OIDC assume-role failed.
@@ -86,5 +86,5 @@ Yes — see the "Local deployment" section in the root `README.md`. CI is the
 intended path, but local runs share the same backend and module.
 
 **Q: Where do I store secrets?**
-GitHub Actions secrets (`AWS_ROLE_ARN`, `TF_STATE_BUCKET`). The solution uses
-OIDC, so no long-lived AWS keys are stored anywhere.
+GitHub Actions secret `AWS_ROLE_ARN`. The solution uses OIDC, so no long-lived
+AWS keys are stored anywhere.
