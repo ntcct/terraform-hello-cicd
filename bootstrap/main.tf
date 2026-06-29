@@ -47,9 +47,11 @@ locals {
 resource "aws_s3_bucket" "state" {
   bucket = local.state_bucket_name
 
-  # Allows Terraform to empty + delete the bucket (incl. versioned objects) when
-  # it is replaced or destroyed. Convenient for this demo; reconsider for prod.
-  force_destroy = true
+  # Protect remote state: refuse to delete the bucket while it still contains
+  # objects (the dev/prod state files + lock files). With force_destroy = false,
+  # `terraform destroy`/replace will FAIL rather than silently wipe all state.
+  # To intentionally tear down, empty the bucket first (after backing up state).
+  force_destroy = false
 }
 
 resource "aws_s3_bucket_versioning" "state" {
