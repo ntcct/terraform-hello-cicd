@@ -1,4 +1,4 @@
-# terraform-hello-cicd ntcct1v1
+# terraform-hello-cicd v1
 
 A complete, end-to-end Terraform + CI/CD reference solution. It deploys a simple
 **"Hello World"** application to **AWS Lambda + API Gateway**, across two fully
