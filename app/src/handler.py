@@ -15,7 +15,7 @@ def handler(event, context):
     version = os.environ.get("APP_VERSION", "0.0.0")
 
     body = {
-        "message": "Hello World v1",
+        "message": "Hello World ntcct1",
         "app": app_name,
         "environment": environment,
         "version": version,
