@@ -37,24 +37,36 @@ jobs:
         run: terraform fmt -check -recursive
         working-directory: .
 
+      # ---------------------------------------------------------------------
+      # Steps below need AWS credentials (S3 backend + plan refresh).
+      # GitHub does NOT expose secrets to PRs opened from forks, so OIDC would
+      # fail there. Gate these steps to same-repo PRs only; fork PRs still get
+      # the `fmt` check above. See:
+      # github.event.pull_request.head.repo.full_name == github.repository
+      # is true only when the PR branch lives in THIS repo (not a fork).
+      # ---------------------------------------------------------------------
       - name: Configure AWS credentials (OIDC)
+        if: github.event.pull_request.head.repo.full_name == github.repository
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Terraform init
+        if: github.event.pull_request.head.repo.full_name == github.repository
         run: |
           echo "I have been called by ${{ github.event_name }}"
           terraform init
 
       - name: Terraform validate
+        if: github.event.pull_request.head.repo.full_name == github.repository
         run: terraform validate
 
       - name: Terraform plan
         id: plan
+        if: github.event.pull_request.head.repo.full_name == github.repository
         run: terraform plan -no-color -input=false -out=tfplan
 
       - name: Post plan summary
-        if: always()
+        if: always() && github.event.pull_request.head.repo.full_name == github.repository
         run: terraform show -no-color tfplan >> "$GITHUB_STEP_SUMMARY" || true
