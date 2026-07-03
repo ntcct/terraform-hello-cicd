@@ -24,6 +24,7 @@ provider "aws" {
 module "app" {
   source = "../../modules/lambda-api"
 
+  # lambda_runtime    = "python3.14"
   app_name          = var.app_name
   environment       = var.environment
   lambda_source_dir = "${path.module}/../../app/src"
