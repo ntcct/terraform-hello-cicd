@@ -1,5 +1,5 @@
 # dev environment values. Kept small and cheap.
-environment        = "dev"
+# `environment` is auto-derived from the directory name (-> "dev").
 aws_region         = "us-east-1"
 app_name           = "tf-hello-app"
 lambda_memory_mb   = 128

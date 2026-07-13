@@ -9,23 +9,31 @@ terraform {
   }
 }
 
+locals {
+  # Auto-derive the environment name from this directory's name
+  # (e.g. environments/prod -> "prod"). Setting var.environment overrides it.
+  environment = coalesce(var.environment, basename(abspath(path.root)))
+}
+
 provider "aws" {
   region = var.aws_region
 
   default_tags {
     tags = {
       Project     = "terraform-hello-cicd"
-      Environment = var.environment
+      Environment = local.environment
       ManagedBy   = "terraform"
     }
   }
 }
 
 module "app" {
-  source = "../../modules/lambda-api"
+  # prod is pinned to a stable, released module version.
+  # Bump this ref deliberately when promoting a release.
+  source = "git::https://github.com/ntcct/terraform-hello-cicd.git//modules/lambda-api?ref=v1"
 
   app_name          = var.app_name
-  environment       = var.environment
+  environment       = local.environment
   lambda_source_dir = "${path.module}/../../app/src"
   app_version       = var.app_version
 
